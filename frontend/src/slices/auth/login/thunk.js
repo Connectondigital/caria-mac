@@ -6,6 +6,7 @@ import {
 } from "../../../helpers/fakebackend_helper";
 
 import { loginSuccess, logoutUserSuccess, apiError, reset_login_flag } from './reducer';
+import { setAuthorization } from "../../../helpers/api_helper";
 
 export const loginUser = (user, history) => async (dispatch) => {
 
@@ -36,6 +37,9 @@ export const loginUser = (user, history) => async (dispatch) => {
 
     if (data) {
       sessionStorage.setItem("authUser", JSON.stringify(data));
+      if (data.token) {
+        setAuthorization(data.token);
+      }
       if (process.env.REACT_APP_DEFAULTAUTH === "fake") {
         var finallogin = JSON.stringify(data);
         finallogin = JSON.parse(finallogin)
@@ -46,7 +50,7 @@ export const loginUser = (user, history) => async (dispatch) => {
         } else {
           dispatch(apiError(finallogin));
         }
-      }else{
+      } else {
         dispatch(loginSuccess(data));
         history('/dashboard')
       }
@@ -81,10 +85,10 @@ export const socialLogin = (type, history) => async (dispatch) => {
       response = fireBaseBackend.socialLoginUser(type);
     }
     //  else {
-      //   response = postSocialLogin(data);
-      // }
+    //   response = postSocialLogin(data);
+    // }
 
-      const socialdata = await response;
+    const socialdata = await response;
     if (socialdata) {
       sessionStorage.setItem("authUser", JSON.stringify(response));
       dispatch(loginSuccess(response));
@@ -97,7 +101,7 @@ export const socialLogin = (type, history) => async (dispatch) => {
 };
 
 
-export const resetLoginFlag = () => async (dispatch) =>{
+export const resetLoginFlag = () => async (dispatch) => {
   try {
     const response = dispatch(reset_login_flag());
     return response;
