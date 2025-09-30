@@ -2,14 +2,15 @@ import axios from "axios";
 import { api } from "../config";
 
 // default
-axios.defaults.baseURL = api.API_URL;
+const resolvedBaseURL = process.env.REACT_APP_API_URL || (api && api.API_URL) || "/";
+axios.defaults.baseURL = resolvedBaseURL;
 // content type
 axios.defaults.headers.post["Content-Type"] = "application/json";
 
 // content type
 const token = JSON.parse(sessionStorage.getItem("authUser")) ? JSON.parse(sessionStorage.getItem("authUser")).token : null;
-if(token)
-axios.defaults.headers.common["Authorization"] = "Bearer " + token;
+if (token)
+  axios.defaults.headers.common["Authorization"] = "Bearer " + token;
 
 // intercepting to capture errors
 axios.interceptors.response.use(

@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: caria-backend
+    env: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: node backend/index.js
+    autoDeploy: true
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: PORT
+        value: 5000
+      - key: CORS_ORIGINS
+        sync: false
+
+
+

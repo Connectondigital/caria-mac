@@ -1,0 +1,152 @@
+﻿{
+    "info": {
+        "name": "Caria API",
+        "_postman_id": "caria-api-collection",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{token}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "token",
+            "value": ""
+        }
+    ],
+    "item": [
+        {
+            "name": "Auth",
+            "item": [
+                {
+                    "name": "Register",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/auth/register",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "register"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"{{test_name}}\",\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\",\n  \"role\": \"user\"\n}"
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Register status', function () { pm.response.to.have.status(201); });",
+                                    "try {",
+                                    "  var json = pm.response.json();",
+                                    "  var token = json.token || (json.data && json.data.token);",
+                                    "  if (token) { pm.collectionVariables.set('token', token); }",
+                                    "} catch(e) {}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Login",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/auth/login",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}"
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Login status', function () { pm.response.to.have.status(200); });",
+                                    "try {",
+                                    "  var json = pm.response.json();",
+                                    "  var token = json.token || (json.data && json.data.token);",
+                                    "  if (token) { pm.collectionVariables.set('token', token); }",
+                                    "} catch(e) {}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Protected",
+            "item": [
+                {
+                    "name": "Me (verify token)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/test",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "test"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Admin only",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/test/admin-only",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "test",
+                                "admin-only"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

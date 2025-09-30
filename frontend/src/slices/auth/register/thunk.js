@@ -25,7 +25,7 @@ export const registerUser = (user) => async (dispatch) => {
       response = fireBaseBackend.registerUser(user.email, user.password);
       // yield put(registerUserSuccessful(response));
     } else if (process.env.REACT_APP_DEFAULTAUTH === "jwt") {
-      response = postJwtRegister('/post-jwt-register', user);
+      response = postJwtRegister('/auth/register', user);
       // yield put(registerUserSuccessful(response));
     } else if (process.env.REACT_APP_API_URL) {
       response = postFakeRegister(user);

@@ -1,152 +1,58 @@
-{
-    "info": {
-        "name": "Caria API",
-        "_postman_id": "caria-api-collection",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+﻿{
+  "info": { "name": "Caria API (Local)", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" },
+  "item": [
+    {
+      "name": "Health",
+      "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"] } },
+      "response": [],
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('status 200', function () { pm.response.to.have.status(200); });"
+      ]}}]
     },
-    "auth": {
-        "type": "bearer",
-        "bearer": [
-            {
-                "key": "token",
-                "value": "{{token}}",
-                "type": "string"
-            }
-        ]
+    {
+      "name": "Auth - Register",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\\n  \\"name\\": \\"Prod User\\",\\n  \\"email\\": \\"prod@example.com\\",\\n  \\"password\\": \\"Test1234!\\"\\n}" },
+        "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth","register"] }
+      },
+      "response": [],
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "// 200/201 başarılı; 409 zaten kayıtlıysa normal",
+        "pm.expect([200,201,409]).to.include(pm.response.code);"
+      ]}}]
     },
-    "variable": [
-        {
-            "key": "token",
-            "value": ""
-        }
-    ],
-    "item": [
-        {
-            "name": "Auth",
-            "item": [
-                {
-                    "name": "Register",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/auth/register",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "auth",
-                                "register"
-                            ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"{{test_name}}\",\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\",\n  \"role\": \"user\"\n}"
-                        }
-                    },
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "exec": [
-                                    "pm.test('Register status', function () { pm.response.to.have.status(201); });",
-                                    "try {",
-                                    "  var json = pm.response.json();",
-                                    "  var token = json.token || (json.data && json.data.token);",
-                                    "  if (token) { pm.collectionVariables.set('token', token); }",
-                                    "} catch(e) {}"
-                                ],
-                                "type": "text/javascript"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "Login",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/auth/login",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "auth",
-                                "login"
-                            ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}"
-                        }
-                    },
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "exec": [
-                                    "pm.test('Login status', function () { pm.response.to.have.status(200); });",
-                                    "try {",
-                                    "  var json = pm.response.json();",
-                                    "  var token = json.token || (json.data && json.data.token);",
-                                    "  if (token) { pm.collectionVariables.set('token', token); }",
-                                    "} catch(e) {}"
-                                ],
-                                "type": "text/javascript"
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "Protected",
-            "item": [
-                {
-                    "name": "Me (verify token)",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{base_url}}/test",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "test"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "Admin only",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{base_url}}/test/admin-only",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "test",
-                                "admin-only"
-                            ]
-                        }
-                    }
-                }
-            ]
-        }
-    ]
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\\n  \\"email\\": \\"prod@example.com\\",\\n  \\"password\\": \\"Test1234!\\"\\n}" },
+        "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth","login"] }
+      },
+      "response": [],
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('login 200', function(){ pm.response.to.have.status(200); });",
+        "let j={}; try{ j=pm.response.json(); }catch(e){}",
+        "const gv=(o,p)=>p.split('.').reduce((a,k)=>a&&a[k]!==undefined?a[k]:undefined,o);",
+        "let t = j.token || j.accessToken || j.access_token || j.jwt || gv(j,'data.token') || gv(j,'data.accessToken');",
+        "if(t){ pm.environment.set('token', t); pm.collectionVariables.set('token', t); }",
+        "pm.test('token captured', function(){ pm.expect(pm.environment.get('token')).to.be.a('string').and.to.have.length.above(10); });"
+      ]}}]
+    },
+    {
+      "name": "Test (protected)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}", "type": "text" }],
+        "url": { "raw": "{{base_url}}/test", "host": ["{{base_url}}"], "path": ["test"] }
+      },
+      "response": [],
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('protected 200', function(){ pm.response.to.have.status(200); });"
+      ]}}]
+    }
+  ],
+  "variable": [{ "key": "token", "value": "" }]
 }

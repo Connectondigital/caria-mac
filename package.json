@@ -5,12 +5,15 @@
   "type": "commonjs",
   "scripts": {
     "start": "node backend/index.js",
-    "dev": "nodemon backend/index.js"
+    "dev": "nodemon backend/index.js",
+    "api:test": "newman run postman/caria_api.postman_collection.json -e postman/caria_local.postman_environment.json --reporters cli",
+    "api:test:html": "newman run postman/caria_api.postman_collection.json -e postman/caria_local.postman_environment.json --reporters cli,htmlextra --reporter-htmlextra-export reports/caria-api.html",
+    "api:test:prod": "newman run postman/caria_api.postman_collection.json -e postman/caria_prod.postman_environment.json --reporters cli"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.6.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.1"
@@ -23,6 +26,8 @@
     "eslint-define-config": "^2.1.0",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.1.0",
+    "newman": "^6.2.1",
+    "newman-reporter-htmlextra": "^1.23.1",
     "nodemon": "^3.0.0"
   }
 }

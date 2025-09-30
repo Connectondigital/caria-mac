@@ -1,40 +1,76 @@
-require("dotenv").config({ path: __dirname + "/.env" });
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
+﻿// backend/index.js
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
-// Route dosyaları
-const authRoutes = require("./routes/auth");
-const testRoutes = require("./routes/test");
-const adminRoutes = require("./routes/admin");
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+
+const authRoutes = require('./routes/auth');
+const testRoutes = require('./routes/test');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
-
-// 🔍 Çevre değişkeni kontrol
-console.log("MONGO_URI:", process.env.MONGO_URI);
-console.log("PORT:", process.env.PORT);
-
-// Middleware
+app.disable('x-powered-by');
 app.use(express.json());
-app.use(cors());
 
-// API Rotaları
-app.use("/api/auth", authRoutes);
-app.use("/api/test", testRoutes);
-app.use("/api/admin", adminRoutes);
+// ---- CORS allowlist ----
+const rawOrigins =
+  process.env.CORS_ORIGINS ||
+  'http://localhost:5173,http://localhost:3000,http://localhost:3001';
+const allowSet = new Set(
+  rawOrigins.split(',').map((s) => s.trim()).filter(Boolean)
+);
+const allowAll = rawOrigins.trim() === '*';
 
-// MongoDB bağlantısı
-mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+app.use(
+  cors({
+    origin(origin, cb) {
+      if (!origin || allowAll || allowSet.has(origin)) return cb(null, true);
+      return cb(null, false);
+    },
+    credentials: true,
   })
-  .then(() => {
-    console.log("✅ MongoDB bağlantısı başarılı");
-    app.listen(process.env.PORT, () => {
-      console.log(`🚀 Sunucu ${process.env.PORT} portunda çalışıyor`);
+);
+
+// ---- API Rotaları ----
+app.use('/api/auth', authRoutes);
+app.use('/api/test', testRoutes);
+app.use('/api/admin', adminRoutes);
+
+// ---- Health (DB durumu ile) ----
+app.get('/api/health', (_req, res) => {
+  const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+  res.status(200).json({ status: 'ok', db: states[mongoose.connection.readyState] });
+});
+
+// ---- MongoDB bağlantısı ----
+const PORT = Number(process.env.PORT) || 5000;
+const MONGO_URI = process.env.MONGO_URI;
+
+(async () => {
+  try {
+    await mongoose.connect(MONGO_URI);
+
+    const host = (MONGO_URI.match(/@([^/?]+)/) || [])[1] || '<unknown-host>';
+    console.log('✅ MongoDB bağlantısı başarılı →', host);
+
+    const server = app.listen(PORT, () => {
+      console.log(`🚀 Sunucu ${PORT} portunda çalışıyor`);
     });
-  })
-  .catch((err) => {
-    console.error("❌ MongoDB bağlantı hatası:", err.message);
-  });
+
+    const shutdown = (sig) => {
+      console.log(`\n${sig} alındı. Kapanıyor...`);
+      server.close(() =>
+        mongoose.connection.close(false, () => process.exit(0))
+      );
+      setTimeout(() => process.exit(1), 5000).unref();
+    };
+
+    process.on('SIGINT', () => shutdown('SIGINT'));
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+  } catch (err) {
+    console.error('❌ MongoDB bağlantı hatası:', err.message);
+    process.exit(1);
+  }
+})();

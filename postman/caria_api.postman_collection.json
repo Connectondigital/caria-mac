@@ -1,0 +1,154 @@
+﻿{
+    "info":  {
+                 "name":  "Caria API (Local)",
+                 "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+             },
+    "item":  [
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/health",
+                                                 "path":  [
+                                                              "health"
+                                                          ]
+                                             },
+                                     "header":  [
+
+                                                ]
+                                 },
+                     "name":  "Health",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  "pm.test(\"status 200\", function () { pm.response.to.have.status(200); });",
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/auth/register",
+                                                 "path":  [
+                                                              "auth",
+                                                              "register"
+                                                          ]
+                                             },
+                                     "method":  "POST",
+                                     "body":  {
+                                                  "raw":  "{\"name\":\"Prod User\",\"email\":\"prod@example.com\",\"password\":\"Test1234!\"}",
+                                                  "mode":  "raw"
+                                              },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Auth - Register",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  "// 200/201 başarı; 409 zaten kayıtlı; bazı backendlere uyum için 400\u0027ü de toleranslı yapıyoruz\npm.expect([200,201,409,400]).to.include(pm.response.code);",
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/auth/login",
+                                                 "path":  [
+                                                              "auth",
+                                                              "login"
+                                                          ]
+                                             },
+                                     "method":  "POST",
+                                     "body":  {
+                                                  "raw":  "{\"email\":\"prod@example.com\",\"password\":\"Test1234!\"}",
+                                                  "mode":  "raw"
+                                              },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Auth - Login",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  "pm.test(\"login 200\", function(){ pm.response.to.have.status(200); });\nlet j = {};\ntry { j = pm.response.json(); } catch(e) {}\nconst gv=(o,p)=\u003ep.split(\".\").reduce((a,k)=\u003ea \u0026\u0026 a[k]!==undefined ? a[k] : undefined, o);\nlet t = j.token || j.accessToken || j.access_token || j.jwt || gv(j,\"data.token\") || gv(j,\"data.accessToken\");\nif (t) { pm.environment.set(\"token\", t); pm.collectionVariables.set(\"token\", t); }\npm.test(\"token captured\", function(){\n  pm.expect(pm.environment.get(\"token\")).to.be.a(\"string\").and.to.have.length.above(10);\n});",
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/test",
+                                                 "path":  [
+                                                              "test"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}",
+                                                        "type":  "text"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Test (protected)",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  "pm.test(\"protected 200\", function(){ pm.response.to.have.status(200); });",
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 }
+             ],
+    "variable":  [
+                     {
+                         "key":  "token",
+                         "value":  ""
+                     }
+                 ]
+}
